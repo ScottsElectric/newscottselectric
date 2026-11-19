@@ -10,6 +10,12 @@
   inherits: false;
 }
 
+@property --ink-wipe {
+  syntax: '<percentage>';
+  initial-value: 100%;
+  inherits: false;
+}
+
 @layer base {
   html {
     background-color: #0A1929;
@@ -33,6 +39,125 @@
   font-style: italic;
   font-weight: 400;
   letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Next-Level Kinetic Outline-Stroke -> Liquid Ink Typography & SVG Pen Draws
+   ========================================================================== */
+@keyframes heroInkSweep {
+  0% {
+    --ink-wipe: 0%;
+  }
+  100% {
+    --ink-wipe: 100%;
+  }
+}
+
+@keyframes penStrokeDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Dark-on-Sand Kinetic Stroke-to-Ink Display Accent */
+.kinetic-stroke-teal {
+  position: relative;
+  display: inline-block;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  padding-right: 0.06em;
+  -webkit-text-stroke: 1.15px rgba(15, 118, 110, 0.88);
+  background-image: linear-gradient(
+    102deg,
+    #0F766E 0%,
+    #0D9488 calc(var(--ink-wipe) - 6%),
+    #D97706 calc(var(--ink-wipe) - 1%),
+    transparent calc(var(--ink-wipe) + 2%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.kinetic-stroke-hero {
+  --ink-wipe: 0%;
+  animation: heroInkSweep 1.25s cubic-bezier(0.16, 1, 0.3, 1) 0.18s forwards;
+}
+
+/* Light-on-Navy Kinetic Gold Stroke-to-Ink Display Accent */
+.kinetic-stroke-gold {
+  position: relative;
+  display: inline-block;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  padding-right: 0.06em;
+  -webkit-text-stroke: 1.15px rgba(251, 191, 36, 0.88);
+  background-image: linear-gradient(
+    102deg,
+    #FDE68A 0%,
+    #FBBF24 calc(var(--ink-wipe) - 6%),
+    #2DD4BF calc(var(--ink-wipe) - 1%),
+    transparent calc(var(--ink-wipe) + 2%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Pure Architectural Outlined Ghost Accent (for layered poster contrast) */
+.heading-outline-accent {
+  -webkit-text-stroke: 1.35px #0A1929;
+  color: transparent;
+}
+
+.pen-underline-hero {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: penStrokeDraw 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+}
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalCardIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modalBackdropIn 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-modal-card {
+  animation: modalCardIn 380ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes introBeatPop {
+  from {
+    opacity: 0;
+    transform: scale(1.06) translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+.animate-intro-beat {
+  animation: introBeatPop 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Subtle Coastal Topo / Breeze Texture */
@@ -66,10 +191,38 @@
 
 /* Header & Cards */
 .glass-nav {
-  background: rgba(10, 25, 41, 0.88);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: rgba(8, 21, 35, 0.92);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border-bottom: 1px solid rgba(45, 212, 191, 0.16);
+  box-shadow: 0 10px 30px -15px rgba(4, 12, 22, 0.65);
+}
+
+.hero-bezel-shell {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 243, 235, 0.92) 100%);
+  border: 1px solid rgba(10, 25, 41, 0.13);
+  box-shadow:
+    0 36px 80px -22px rgba(10, 25, 41, 0.30),
+    0 14px 28px -14px rgba(10, 25, 41, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+@keyframes heroProgressFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-hero-progress {
+  transform-origin: left center;
+  animation: heroProgressFill 5.6s linear forwards;
+}
+
+.animate-hero-progress-paused {
+  animation-play-state: paused;
 }
 
 .glass-panel {
@@ -198,8 +351,19 @@
 @media (prefers-reduced-motion: reduce) {
   .hf-cam-push-in,
   .animate-tide,
+  .animate-hero-progress,
+  .kinetic-stroke-hero,
+  .pen-underline-hero,
   .cta-phone-beam::before {
     animation: none !important;
     transform: none !important;
+  }
+  .kinetic-stroke-hero,
+  .kinetic-stroke-teal,
+  .kinetic-stroke-gold {
+    --ink-wipe: 100% !important;
+  }
+  .pen-underline-hero {
+    stroke-dashoffset: 0 !important;
   }
 }

@@ -73,13 +73,31 @@ const areaMeta = siteConfig.serviceAreas.find(
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
         <div class="lg:col-span-7 space-y-5">
-          <span class="font-mono text-[11px] font-bold text-teal-700 bg-teal-600/10 px-3.5 py-1.5 rounded-full border border-teal-600/20 uppercase tracking-widest inline-block">
+          <span class="text-xs font-bold uppercase tracking-[0.16em] text-teal-700 inline-block">
             {eyebrow}
           </span>
-          <h1 class="font-heading text-3xl sm:text-5xl font-extrabold text-coastal-navy leading-[1.08]">
+          <h1 class="font-heading text-3xl sm:text-5xl font-extrabold text-coastal-navy leading-[1.06] tracking-tight">
             {h1Lead}{' '}
-            <span class="font-editorial text-[1.12em] font-normal text-teal-700">
-              in {cityName}, VA
+            <span class="relative inline-block">
+              <span class="kinetic-stroke-teal kinetic-stroke-hero text-[1.13em]">
+                in {cityName}, VA
+              </span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 260 14"
+                fill="none"
+                preserveAspectRatio="none"
+                class="pointer-events-none absolute -bottom-1 left-0 w-full h-3 overflow-visible"
+              >
+                <path
+                  d="M4 10.5C78 3.5 180 3 256 9.5"
+                  stroke="#D97706"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  pathLength="1"
+                  class="pen-underline-hero"
+                />
+              </svg>
             </span>
           </h1>
           <p class="text-sm sm:text-lg text-coastal-slate leading-relaxed speakable">
@@ -105,8 +123,8 @@ const areaMeta = siteConfig.serviceAreas.find(
         </div>
 
         <div class="lg:col-span-5">
-          <div class="rounded-[2rem] overflow-hidden border-4 border-white shadow-coastal-elevated bg-coastal-navy relative">
-            <div class="aspect-[4/4.2] overflow-hidden">
+          <div class="hero-bezel-shell rounded-[2rem] p-2.5 overflow-hidden relative">
+            <div class="aspect-[4/4.2] rounded-[1.5rem] overflow-hidden bg-coastal-navy">
               <img
                 src={heroPhotoSrc}
                 alt={heroAlt}
@@ -114,10 +132,6 @@ const areaMeta = siteConfig.serviceAreas.find(
                 class="w-full h-full object-cover hf-cam-push-in"
               />
             </div>
-            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-coastal-navy/85 via-transparent to-transparent"></div>
-            <span class="absolute bottom-3.5 left-3.5 right-3.5 font-mono text-[10px] font-semibold uppercase tracking-wider bg-coastal-navy/90 text-amber-300 px-3 py-1.5 rounded-xl border border-white/15 backdrop-blur-md truncate">
-              {heroSpec}
-            </span>
           </div>
         </div>
       </div>
@@ -156,9 +170,6 @@ const areaMeta = siteConfig.serviceAreas.find(
           {localScopes.map((scope) => (
             <div class="sand-card p-6 sm:p-7 rounded-3xl flex flex-col justify-between space-y-4">
               <div class="space-y-2.5">
-                <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-teal-700 bg-teal-600/10 px-2.5 py-1 rounded-md inline-block">
-                  {scope.code}
-                </span>
                 <h3 class="font-heading text-xl font-extrabold text-coastal-navy">
                   {scope.title}
                 </h3>
@@ -168,9 +179,9 @@ const areaMeta = siteConfig.serviceAreas.find(
               </div>
               <a
                 href={scope.href || 'tel:7575360478'}
-                class="pt-3 border-t border-coastal-navy/10 font-mono text-xs font-extrabold text-teal-700 hover:text-coastal-navy"
+                class="pt-3 border-t border-coastal-navy/10 text-xs font-extrabold text-teal-700 hover:text-coastal-navy"
               >
-                {scope.href ? `Explore ${scope.title} →` : `Schedule in ${cityName}: (757) 536-0478 →`}
+                {scope.href ? `View ${scope.title} →` : `Call (757) 536-0478 →`}
               </a>
             </div>
           ))}

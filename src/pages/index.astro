@@ -13,40 +13,60 @@ import { HOME_CITY_HUBS } from '../config/verifiedMedia.js';
   title="24/7 Emergency Electrician, 200A Panel Upgrades & EV Chargers in Virginia Beach, Norfolk & 757 | Scott's Electric"
   description="Licensed Master Electrician serving Virginia Beach, Norfolk, Chesapeake, Newport News, Hampton, Portsmouth & Suffolk. 24/7 emergency repair, 200A/400A panel upgrades, EV chargers, 3-phase commercial & standby generators. Call (757) 536-0478."
 >
-  <!-- 1. Sunlit Shore Drive / Coastal 757 Motion Hero (5 Unique Photos) -->
+  <!-- 1. Shore Drive Coastal Motion Hero (5 Unique Photos) -->
   <HiggsfieldHeroStage client:load />
 
-  <!-- 2. Pinned Stacked-Deck Electrical Scopes (12 Unique Media) + Pinned Horizontal Film-Track (10 Unique Photos) -->
+  <!-- 2. Pinned Stacked Electrical Services (12 Unique Media) + Pinned Horizontal Gallery (10 Unique Photos) -->
   <ParallaxMotionReel client:load />
 
-  <!-- 3. Sunlit Coastal 7-City Tidewater Dispatch Grid (7 Unique Photos — 1 Per City) -->
+  <!-- 3. 7-City Hampton Roads Coverage Grid (7 Unique Photos — 1 Per City) -->
   <section class="py-20 lg:py-28 coastal-sand-surface relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div data-reveal-block class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-14">
         <div class="max-w-3xl">
-          <span class="font-mono text-[11px] font-bold text-teal-700 bg-teal-600/10 px-3.5 py-1.5 rounded-full border border-teal-600/20 uppercase tracking-widest inline-block">
-            757 Coastal Coverage • Southside &amp; Peninsula
+          <span class="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
+            Service Areas
           </span>
-          <h2 class="font-heading text-3xl sm:text-5xl font-extrabold text-coastal-navy mt-4 leading-tight">
-            Local 24/7 Master Electricians Across{' '}
-            <span className="font-editorial text-[1.12em] font-normal text-teal-700">
-              All Seven Cities
+          <h2 class="font-heading text-3xl sm:text-5xl font-extrabold text-coastal-navy mt-3 leading-[1.08] tracking-tight">
+            Local Electricians Across{' '}
+            <span class="relative inline-block">
+              <span data-stroke-word class="kinetic-stroke-teal text-[1.14em]">
+                All Seven Cities.
+              </span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 240 14"
+                fill="none"
+                preserveAspectRatio="none"
+                class="pointer-events-none absolute -bottom-1 left-0 w-full h-3 overflow-visible"
+              >
+                <path
+                  data-pen-path
+                  d="M4 10.5C72 3.5 168 3 236 9.5"
+                  stroke="#D97706"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  pathLength="1"
+                  strokeDasharray="1"
+                  strokeDashoffset="1"
+                />
+              </svg>
             </span>
           </h2>
-          <p class="text-sm sm:text-base text-coastal-slate mt-2.5 leading-relaxed">
-            Headquartered at 2829 Shore Dr in Virginia Beach with rapid dispatch across every bridge-tunnel, waterfront neighborhood, and commercial corridor in Hampton Roads.
+          <p class="text-sm sm:text-base text-coastal-slate mt-3 leading-relaxed">
+            Based at 2829 Shore Dr in Virginia Beach with fast response across both the Southside and Peninsula.
           </p>
         </div>
 
         <a
           href="tel:7575360478"
-          class="shrink-0 inline-flex items-center justify-center gap-2 bg-coastal-navy hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm px-6 py-3.5 rounded-xl shadow-md"
+          class="shrink-0 inline-flex items-center justify-center gap-2 bg-coastal-navy hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm px-6 py-3.5 rounded-xl shadow-md w-fit"
         >
-          <span>24/7 Hotline: (757) 536-0478</span>
+          <span>Call (757) 536-0478</span>
         </a>
       </div>
 
-      <div data-draw-rule class="h-[1px] bg-coastal-navy/15 mb-12"></div>
+      <div data-draw-rule class="h-[1px] bg-coastal-navy/12 mb-12"></div>
 
       <div data-deal-grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {HOME_CITY_HUBS.map((city) => (
@@ -64,18 +84,15 @@ import { HOME_CITY_HUBS } from '../config/verifiedMedia.js';
         ))}
       </div>
 
-      <!-- Clean Sunlit Coastal Direct-Answer Summary Bar -->
+      <!-- Clean Human Summary Card -->
       <div data-reveal-block class="mt-16 sand-card rounded-3xl p-6 sm:p-9 border border-coastal-navy/12">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div class="lg:col-span-8 space-y-3">
-            <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-teal-700">
-              VERIFIED 757 CONTRACTOR BRIEF • LICENSED &amp; INSURED VA CLASS A
-            </span>
+          <div class="lg:col-span-8 space-y-2.5">
             <h3 class="font-heading text-xl sm:text-2xl font-extrabold text-coastal-navy speakable">
-              Who provides 24/7 licensed Master Electrician service across all 7 cities of Hampton Roads?
+              Licensed &amp; Insured Virginia Master Electricians — Ready 24/7
             </h3>
             <p class="text-sm sm:text-base text-coastal-slate leading-relaxed speakable">
-              Scott's Electric LLC dispatches licensed Virginia Master Electricians across Virginia Beach, Norfolk, Chesapeake, Newport News, Hampton, Portsmouth, and Suffolk for 24/7 emergency troubleshooting, same-day 200A/400A panel replacements, Level 2 EV charging circuits, 3-phase commercial switchgear, and automatic standby generators—coordinating Dominion Energy disconnects and municipal permits directly.
+              Scott&rsquo;s Electric LLC handles 24/7 emergency repairs, same-day 200A/400A panel replacements, Level 2 EV chargers, commercial 3-phase power, and standby generators across Virginia Beach, Norfolk, Chesapeake, Newport News, Hampton, Portsmouth, and Suffolk—including city permits and Dominion Energy disconnects.
             </p>
           </div>
           <div class="lg:col-span-4 flex flex-col gap-3">
@@ -83,13 +100,13 @@ import { HOME_CITY_HUBS } from '../config/verifiedMedia.js';
               href="tel:7575360478"
               class="w-full text-center bg-amber-400 hover:bg-amber-300 text-coastal-navy font-extrabold text-sm py-4 rounded-2xl shadow-gold-glow transition-colors"
             >
-              Call (757) 536-0478 — 24/7
+              Call (757) 536-0478
             </a>
             <a
               href="#instant-calculator"
               class="w-full text-center border border-coastal-navy/20 hover:border-teal-700 text-coastal-navy font-bold text-xs py-3.5 rounded-2xl transition-colors"
             >
-              Open NEC Load &amp; Price Calculator ↓
+              Estimate Your Project ↓
             </a>
           </div>
         </div>
@@ -97,16 +114,16 @@ import { HOME_CITY_HUBS } from '../config/verifiedMedia.js';
     </div>
   </section>
 
-  <!-- 4. Remaining Distinct Field Craftsmanship Detail Archive (Zero Overlap With Any Above Section) -->
+  <!-- 4. Additional Project Gallery (Zero Overlap With Any Above Section) -->
   <MotionVaultGallery client:visible />
 
-  <!-- 5. Deep Chesapeake Ocean Navy NEC Article 220 Load & Project Price Workbench -->
+  <!-- 5. Project Estimator & Panel Load Calculator -->
   <section id="instant-calculator" class="py-20 lg:py-24 coastal-ocean-surface border-t border-white/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <InteractiveQuoteCalculator client:visible />
     </div>
   </section>
 
-  <!-- 6. Answer-Engine Optimized FAQ & JSON-LD -->
+  <!-- 6. Common Questions -->
   <AEOFAQ />
 </Layout>

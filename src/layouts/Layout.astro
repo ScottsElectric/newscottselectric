@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SchemaMarkup from '../components/SchemaMarkup.astro';
 import LeadPopup from '../components/LeadPopup.jsx';
+import CoastalIntroDirector from '../components/CoastalIntroDirector.jsx';
 import CoastalScrollEngine from '../components/CoastalScrollEngine.jsx';
 import { siteConfig } from '../config/site.js';
 import '../styles/global.css';
@@ -129,6 +130,38 @@ const geoPlacename = cityName === "Hampton Roads" ? "Virginia Beach" : cityName;
     isServicePage={isServicePage}
     serviceData={serviceData}
   />
+  <!-- Zero-Flash Pre-Paint Curtain for First-Visit Desktop Homepage Intro -->
+  <script is:inline>
+    (function () {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        var force = p.get('intro') === '1';
+        var skip = p.get('intro') === '0';
+        var isHome = window.location.pathname === '/' || window.location.pathname === '';
+        var isDesktop = window.innerWidth >= 1024;
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var seen = sessionStorage.getItem('scotts_coastal_intro_v1') === '1';
+        if (force || (!skip && isHome && isDesktop && !reduced && !navigator.webdriver && !seen)) {
+          document.documentElement.setAttribute('data-intro-curtain', '1');
+          setTimeout(function () {
+            document.documentElement.removeAttribute('data-intro-curtain');
+          }, 3200);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <style is:inline>
+    #intro-prepaint-curtain { display: none; }
+    html[data-intro-curtain="1"] #intro-prepaint-curtain {
+      display: flex;
+      position: fixed;
+      inset: 0;
+      z-index: 69;
+      background: #06101C;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body class="bg-brand-dark text-brand-text min-h-screen flex flex-col antialiased selection:bg-amber-400 selection:text-slate-950 relative">
   <!-- Netlify Form Discovery Declaration -->
@@ -150,11 +183,19 @@ const geoPlacename = cityName === "Hampton Roads" ? "Virginia Beach" : cityName;
     <input type="text" name="service" />
   </form>
 
+  <!-- Instant Pre-Paint Curtain (Seamless 0ms Handoff Into CoastalIntroDirector) -->
+  <div id="intro-prepaint-curtain" aria-hidden="true">
+    <div style="width:24%;height:2px;background:linear-gradient(90deg,transparent,#fbbf24,transparent);opacity:0.85;"></div>
+  </div>
+
+  <!-- Desktop Motion-Edit Intro Sequence + Aperture Seam Handoff -->
+  <CoastalIntroDirector client:load />
+
   <!-- Global GSAP + ScrollTrigger + Lenis Continuous Scroll Engine -->
   <CoastalScrollEngine client:load />
 
-  <!-- User-Triggered Callback Modal (Never Auto-Interrupts On Load) -->
-  <LeadPopup client:idle />
+  <!-- Immediate Residential-to-Upgrade Dispatch Funnel Modal -->
+  <LeadPopup client:load />
 
   <!-- Accessibility Skip Link -->
   <a href="#main-content" class="skip-to-content">

@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import ScrollTriggerPkg from 'gsap/ScrollTrigger';
-import { PhoneCall, Calculator, ShieldCheck, Zap, Compass, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import {
+  PhoneCall,
+  ShieldCheck,
+  Zap,
+  Compass,
+  CheckCircle2,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { HOME_HERO_SLIDES } from '../config/verifiedMedia.js';
 
 const ScrollTrigger = ScrollTriggerPkg?.ScrollTrigger || ScrollTriggerPkg;
@@ -10,57 +19,64 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const SLIDE_DURATION_MS = 5600;
+
 export default function HiggsfieldHeroStage() {
   const [activeIdx, setActiveIdx] = useState(0);
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const [isPaused, setIsPaused] = useState(false);
+  const [strokeKey, setStrokeKey] = useState(0);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, gx: 50, gy: 35 });
   const sectionRef = useRef(null);
   const portalRef = useRef(null);
   const copyRef = useRef(null);
+  const ghostRef = useRef(null);
 
+  // Sync stroke-to-ink reveal right as the Desktop Intro Aperture splits open!
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIdx((prev) => (prev + 1) % HOME_HERO_SLIDES.length);
-    }, 5200);
-    return () => clearInterval(timer);
+    const replayStroke = () => setStrokeKey((k) => k + 1);
+    window.addEventListener('coastal-intro-opening', replayStroke);
+    return () => window.removeEventListener('coastal-intro-opening', replayStroke);
   }, []);
 
+  // Autoplay gallery with hover pause
+  useEffect(() => {
+    if (isPaused) return undefined;
+    const timer = setInterval(() => {
+      setActiveIdx((prev) => (prev + 1) % HOME_HERO_SLIDES.length);
+    }, SLIDE_DURATION_MS);
+    return () => clearInterval(timer);
+  }, [isPaused, activeIdx]);
+
+  // Subtle scroll parallax (never hides hero copy at opacity 0)
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced || !sectionRef.current) return undefined;
 
     const ctx = gsap.context(() => {
       if (portalRef.current) {
-        gsap.fromTo(
-          portalRef.current,
-          { y: 0, scale: 1 },
-          {
-            y: -28,
-            scale: 1.03,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: 0.6,
-            },
-          }
-        );
+        gsap.to(portalRef.current, {
+          y: -22,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 0.65,
+          },
+        });
       }
-      if (copyRef.current) {
-        gsap.fromTo(
-          copyRef.current,
-          { y: 0 },
-          {
-            y: -16,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top top',
-              end: 'bottom top',
-              scrub: 0.6,
-            },
-          }
-        );
+
+      if (ghostRef.current) {
+        gsap.to(ghostRef.current, {
+          xPercent: -6,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: 0.8,
+          },
+        });
       }
     }, sectionRef);
 
@@ -70,213 +86,344 @@ export default function HiggsfieldHeroStage() {
   const handlePointerMove = (e) => {
     if (!portalRef.current) return;
     const rect = portalRef.current.getBoundingClientRect();
-    const nx = (e.clientX - rect.left) / rect.width - 0.5;
-    const ny = (e.clientY - rect.top) / rect.height - 0.5;
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
     setTilt({
-      rx: Number((-ny * 6).toFixed(2)),
-      ry: Number((nx * 7).toFixed(2)),
+      rx: Number((-(py - 0.5) * 4).toFixed(2)),
+      ry: Number(((px - 0.5) * 5).toFixed(2)),
+      gx: Math.round(px * 100),
+      gy: Math.round(py * 100),
     });
   };
 
-  const resetPointer = () => setTilt({ rx: 0, ry: 0 });
+  const resetPointer = () => {
+    setTilt({ rx: 0, ry: 0, gx: 50, gy: 35 });
+    setIsPaused(false);
+  };
+
+  const stepSlide = (dir) => {
+    setActiveIdx((prev) => (prev + dir + HOME_HERO_SLIDES.length) % HOME_HERO_SLIDES.length);
+  };
 
   const currentSlide = HOME_HERO_SLIDES[activeIdx] || HOME_HERO_SLIDES[0];
 
   return (
     <section
       ref={sectionRef}
-      className="relative coastal-sand-surface pt-8 pb-20 lg:pt-14 lg:pb-28 overflow-hidden"
+      className="relative coastal-sand-surface pt-7 pb-20 sm:pt-11 lg:pt-14 lg:pb-28 overflow-hidden border-b border-coastal-navy/10"
     >
-      {/* Ambient Sunlit Coastal Glows */}
-      <div className="pointer-events-none absolute -top-28 right-0 w-[560px] h-[560px] rounded-full bg-teal-500/10 blur-[120px]" />
-      <div className="pointer-events-none absolute top-24 -left-24 w-[460px] h-[460px] rounded-full bg-amber-500/12 blur-[110px]" />
+      {/* Subtle Outlined Architectural Ghost Watermark ("757") */}
+      <div
+        ref={ghostRef}
+        aria-hidden="true"
+        style={{ WebkitTextStroke: '1.25px rgba(15, 118, 110, 0.085)', color: 'transparent' }}
+        className="pointer-events-none select-none hidden lg:block absolute -bottom-10 left-8 font-heading font-extrabold text-[15rem] xl:text-[18rem] leading-none tracking-tighter"
+      >
+        757
+      </div>
+
+      {/* Subtle Coastal Bathymetric Contour Lines */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 1440 820"
+        fill="none"
+        preserveAspectRatio="xMidYMid slice"
+        className="pointer-events-none absolute inset-0 w-full h-full opacity-[0.06]"
+      >
+        <path
+          d="M-120 190C180 95 430 285 760 175C1090 65 1290 215 1560 130"
+          stroke="#0F766E"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M-120 350C210 255 470 445 810 335C1150 225 1310 375 1560 290"
+          stroke="#0A1929"
+          strokeWidth="1.1"
+        />
+        <path
+          d="M-120 530C260 435 560 605 900 495C1240 385 1380 525 1560 450"
+          stroke="#B45309"
+          strokeWidth="1.1"
+        />
+      </svg>
+
+      {/* Sunlit Warmth & Atlantic Breeze Radial Glows */}
+      <div className="pointer-events-none absolute -top-32 right-0 w-[600px] h-[600px] rounded-full bg-teal-500/[0.08] blur-[130px]" />
+      <div className="pointer-events-none absolute top-28 -left-24 w-[460px] h-[460px] rounded-full bg-amber-500/[0.10] blur-[120px]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-          {/* LEFT: Sunlit Coastal Editorial Copy & Immediate Phone Conversion */}
-          <div ref={copyRef} className="lg:col-span-7 space-y-6 text-left">
-            {/* Coastal Shore Drive Location & Live Dispatch Pill */}
-            <div className="inline-flex flex-wrap items-center gap-2.5 bg-white/90 border border-coastal-navy/15 px-4 py-1.5 rounded-full shadow-sm">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-600" />
+          {/* ================================================================
+              LEFT COLUMN: Kinetic Stroke Typography & Effortless Human Copy
+              ================================================================ */}
+          <div ref={copyRef} className="lg:col-span-7 space-y-6 sm:space-y-7 text-left">
+            {/* 1. Clean Understated Location & Availability Pill */}
+            <div
+              data-hero-stagger
+              className="inline-flex items-center gap-2.5 bg-white/90 backdrop-blur-md border border-coastal-navy/12 px-4 py-1.5 rounded-full shadow-sm"
+            >
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
               </span>
-              <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-coastal-navy">
-                24/7 Coastal 757 Dispatch • Shore Dr, Virginia Beach HQ
+              <span className="text-xs sm:text-[13px] font-semibold text-coastal-navy">
+                Virginia Beach &amp; All 7 Cities • Open 24/7
               </span>
             </div>
 
-            {/* Keyword-First H1 With Instrument Serif Italic Coastal Accent */}
-            <h1 className="font-heading text-4xl sm:text-5xl xl:text-[3.85rem] font-extrabold text-coastal-navy leading-[1.06] tracking-tight">
-              24/7 Emergency Electrician,{' '}
-              <span className="font-editorial text-[1.12em] font-normal text-teal-700">
-                200A Panel Upgrades
-              </span>{' '}
-              &amp; EV Chargers Across{' '}
-              <span className="font-editorial text-[1.1em] font-normal text-amber-600">
-                Hampton Roads
-              </span>
-            </h1>
+            {/* 2. Next-Level Kinetic Stroke-to-Ink Headline + Self-Drawing SVG Pen Flourish */}
+            <div key={strokeKey} data-hero-stagger>
+              <h1 className="font-heading text-[2.3rem] sm:text-[3.1rem] xl:text-[3.65rem] font-extrabold text-coastal-navy leading-[1.06] tracking-[-0.032em]">
+                24/7 Emergency Electrician,{' '}
+                <span className="relative inline-block whitespace-nowrap sm:whitespace-normal">
+                  <span className="kinetic-stroke-teal kinetic-stroke-hero text-[1.15em]">
+                    200A Panel Upgrades
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 320 16"
+                    fill="none"
+                    preserveAspectRatio="none"
+                    className="pointer-events-none absolute -bottom-1.5 left-0 w-full h-3 sm:h-3.5 overflow-visible"
+                  >
+                    <path
+                      d="M3 11.5C78 3.5 198 2.5 317 9.5"
+                      stroke="#D97706"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                      pathLength="1"
+                      className="pen-underline-hero"
+                    />
+                    <path
+                      d="M28 14.5C118 9.5 224 8.5 296 12.5"
+                      stroke="#0D9488"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                      strokeOpacity="0.65"
+                      pathLength="1"
+                      className="pen-underline-hero"
+                    />
+                  </svg>
+                </span>{' '}
+                &amp; EV Chargers Across{' '}
+                <span className="kinetic-stroke-teal kinetic-stroke-hero text-[1.14em]">
+                  Hampton Roads.
+                </span>
+              </h1>
+            </div>
 
-            <p className="text-base sm:text-lg text-coastal-slate leading-relaxed max-w-2xl speakable">
-              Built for Coastal Virginia homes, waterfront estates, and commercial properties. Licensed Master Electricians delivering same-day 200A/400A breaker panels, Level 2 EV circuits, hurricane standby generators, and salt-air exterior lighting across{' '}
+            {/* 3. Clear, Confident Human Lead Paragraph (Everyday Residential -> Major Upgrades) */}
+            <p
+              data-hero-stagger
+              className="text-base sm:text-lg text-coastal-slate leading-[1.68] max-w-[56ch] speakable"
+            >
+              From everyday outlet repairs, ceiling fans, and tripping breakers to same-day 200A panel upgrades, EV chargers, pool wiring, and standby generators—licensed Master Electricians serving{' '}
               <strong className="text-coastal-navy font-bold">
                 Virginia Beach, Norfolk, Chesapeake, Newport News, Hampton, Portsmouth &amp; Suffolk
               </strong>
               .
             </p>
 
-            {/* Primary Phone CTA + NEC Calculator Secondary */}
-            <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* 4. Clean, Matched-Height Dual Action Buttons (Zero Clutter) */}
+            <div
+              data-hero-stagger
+              className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5"
+            >
               <a
                 href="tel:7575360478"
-                className="cta-phone-beam inline-flex items-center justify-center gap-3 bg-coastal-navy hover:bg-slate-800 text-white font-extrabold px-7 py-4 rounded-2xl shadow-coastal-elevated transition-transform duration-200 hover:scale-[1.02] text-base sm:text-lg"
+                className="cta-phone-beam group inline-flex items-center justify-center gap-3 bg-coastal-navy hover:bg-[#0E2238] text-white font-extrabold text-base sm:text-[17px] px-7 py-4 min-h-[58px] rounded-2xl shadow-[0_20px_44px_-12px_rgba(10,25,41,0.42)] transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <span className="p-1.5 rounded-lg bg-amber-400 text-coastal-navy">
-                  <PhoneCall className="w-4 h-4 stroke-[2.5]" />
+                <span className="w-8 h-8 rounded-xl bg-amber-400 text-coastal-navy flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <PhoneCall className="w-4 h-4 stroke-[2.6]" />
                 </span>
-                <span>Call Now: (757) 536-0478</span>
+                <span className="whitespace-nowrap">Call (757) 536-0478</span>
               </a>
 
               <a
                 href="#instant-calculator"
-                className="inline-flex items-center justify-center gap-2.5 border border-coastal-navy/20 hover:border-teal-600 bg-white/90 hover:bg-white text-coastal-navy font-bold px-6 py-4 rounded-2xl shadow-sm transition-colors text-sm sm:text-base"
+                className="inline-flex items-center justify-center gap-2 border border-coastal-navy/18 hover:border-teal-700 bg-white/95 hover:bg-white text-coastal-navy font-bold text-sm sm:text-base px-6 py-4 min-h-[58px] rounded-2xl shadow-[0_12px_28px_-12px_rgba(10,25,41,0.14)] transition-all duration-200 hover:-translate-y-0.5 whitespace-nowrap"
               >
-                <Calculator className="w-4 h-4 text-teal-700 shrink-0" />
-                <span>NEC Load &amp; Price Estimator</span>
+                <span>Estimate Your Project</span>
+                <span aria-hidden="true" className="text-teal-700">↓</span>
               </a>
             </div>
 
-            {/* Clean Coastal Trust Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-coastal-navy/10">
-              <div className="bg-white/80 border border-coastal-navy/10 rounded-2xl p-3.5">
-                <div className="font-mono text-[11px] font-bold text-teal-700 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                  <span>VA CLASS A</span>
+            {/* 5. Clean Architectural Trust Ledger */}
+            <div
+              data-hero-stagger
+              className="rounded-2xl bg-white/90 backdrop-blur-md border border-coastal-navy/10 shadow-[0_16px_38px_-18px_rgba(10,25,41,0.15)] grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-coastal-navy/10 overflow-hidden"
+            >
+              <div className="p-3.5 sm:p-4 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-heading text-xs sm:text-[13px] font-extrabold text-coastal-navy">
+                    VA Class A
+                  </div>
+                  <div className="text-[11px] text-coastal-slate">Master Licensed</div>
                 </div>
-                <div className="text-xs text-coastal-navy font-semibold mt-1">Master Electricians</div>
               </div>
-              <div className="bg-white/80 border border-coastal-navy/10 rounded-2xl p-3.5">
-                <div className="font-mono text-[11px] font-bold text-amber-600 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 shrink-0" />
-                  <span>&lt; 45 MIN AVG</span>
+
+              <div className="p-3.5 sm:p-4 flex items-start gap-2.5 border-l border-coastal-navy/10 sm:border-l-0">
+                <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-heading text-xs sm:text-[13px] font-extrabold text-coastal-navy">
+                    30–45 Min Avg
+                  </div>
+                  <div className="text-[11px] text-coastal-slate">24/7 Emergencies</div>
                 </div>
-                <div className="text-xs text-coastal-navy font-semibold mt-1">24/7 Emergency ETA</div>
               </div>
-              <div className="bg-white/80 border border-coastal-navy/10 rounded-2xl p-3.5">
-                <div className="font-mono text-[11px] font-bold text-teal-700 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>DOMINION SYNC</span>
+
+              <div className="p-3.5 sm:p-4 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-heading text-xs sm:text-[13px] font-extrabold text-coastal-navy">
+                    Same-Day Power
+                  </div>
+                  <div className="text-[11px] text-coastal-slate">Permits &amp; Dominion</div>
                 </div>
-                <div className="text-xs text-coastal-navy font-semibold mt-1">Same-Day Reconnects</div>
               </div>
-              <div className="bg-white/80 border border-coastal-navy/10 rounded-2xl p-3.5">
-                <div className="font-mono text-[11px] font-bold text-amber-600 flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5 shrink-0" />
-                  <span>ALL 7 CITIES</span>
+
+              <div className="p-3.5 sm:p-4 flex items-start gap-2.5 border-l border-coastal-navy/10 sm:border-l-0">
+                <Compass className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-heading text-xs sm:text-[13px] font-extrabold text-coastal-navy">
+                    All 7 Cities
+                  </div>
+                  <div className="text-[11px] text-coastal-slate">Shore Dr HQ</div>
                 </div>
-                <div className="text-xs text-coastal-navy font-semibold mt-1">Southside &amp; Peninsula</div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: Sunlit Coastal Cinema Portal (5 Unique Verified Jobsite Frames) */}
+          {/* ================================================================
+              RIGHT COLUMN: Pure Uncluttered Editorial Photo Frame
+              ================================================================ */}
           <div className="lg:col-span-5">
             <div
               ref={portalRef}
+              onPointerEnter={() => setIsPaused(true)}
               onPointerMove={handlePointerMove}
               onPointerLeave={resetPointer}
-              style={{ perspective: '1200px' }}
+              style={{ perspective: '1400px' }}
               className="relative mx-auto max-w-md lg:max-w-none will-change-transform"
             >
               <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -inset-3 rounded-[2.6rem] bg-gradient-to-br from-teal-500/12 via-transparent to-amber-500/18 blur-xl"
+              />
+
+              <div
                 style={{
                   transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
-                  transition: 'transform 220ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  transition: 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
-                className="relative rounded-[2rem] overflow-hidden bg-coastal-navy border-4 border-white shadow-coastal-elevated"
+                className="relative hero-bezel-shell rounded-[2.2rem] p-2.5 sm:p-3 overflow-hidden"
               >
-                {/* Main Cinema Frame */}
-                <div className="relative aspect-[4/4.6] overflow-hidden bg-coastal-navy">
-                  <img
-                    key={currentSlide.cleanBase}
-                    src={currentSlide.src}
-                    alt={currentSlide.seoAlt}
-                    width={currentSlide.width}
-                    height={currentSlide.height}
+                {/* Clean Cross-Dissolving Jobsite Photography (Zero Badge Clutter at Top) */}
+                <div className="relative aspect-[4/4.5] rounded-[1.7rem] overflow-hidden bg-coastal-navy">
+                  {HOME_HERO_SLIDES.map((slide, idx) => {
+                    const isActive = idx === activeIdx;
+                    return (
+                      <img
+                        key={slide.cleanBase}
+                        src={slide.src}
+                        alt={slide.seoAlt}
+                        width={slide.width}
+                        height={slide.height}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        style={{
+                          objectPosition: `${slide.focalPoint.x}% ${slide.focalPoint.y}%`,
+                        }}
+                        className={`absolute inset-0 w-full h-full object-cover brightness-[1.05] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                          isActive
+                            ? 'opacity-100 scale-[1.02] z-10'
+                            : 'opacity-0 scale-[1.07] z-0 pointer-events-none'
+                        }`}
+                      />
+                    );
+                  })}
+
+                  {/* Soft Pointer Specular Sheen & Subtle Bottom Gradient */}
+                  <div
+                    aria-hidden="true"
                     style={{
-                      objectPosition: `${currentSlide.focalPoint.x}% ${currentSlide.focalPoint.y}%`,
-                      transformOrigin: `${currentSlide.focalPoint.x}% ${currentSlide.focalPoint.y}%`,
+                      background: `radial-gradient(circle at ${tilt.gx}% ${tilt.gy}%, rgba(255,255,255,0.14), transparent 55%)`,
                     }}
-                    className="w-full h-full object-cover hf-cam-push-in"
+                    className="pointer-events-none absolute inset-0 z-20"
                   />
+                  <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-[#06111D]/92 via-[#06111D]/15 to-transparent" />
 
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-coastal-navy/95 via-coastal-navy/20 to-transparent" />
-
-                  {/* Top Coastal Coordinate Pill */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 pointer-events-none">
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider bg-white/95 text-coastal-navy px-3 py-1.5 rounded-full shadow">
-                      {currentSlide.tag}
-                    </span>
-                    <span className="font-mono text-[10px] font-semibold bg-coastal-navy/85 text-teal-300 border border-teal-400/30 px-2.5 py-1 rounded-full backdrop-blur-md">
-                      0{activeIdx + 1} / 0{HOME_HERO_SLIDES.length}
-                    </span>
+                  {/* Minimal Prev / Next Controls in Top-Right Corner */}
+                  <div className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => stepSlide(-1)}
+                      aria-label="Previous project photo"
+                      className="w-8 h-8 rounded-full bg-black/35 hover:bg-black/60 border border-white/20 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => stepSlide(1)}
+                      aria-label="Next project photo"
+                      className="w-8 h-8 rounded-full bg-black/35 hover:bg-black/60 border border-white/20 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
 
-                  {/* Bottom Frosted Coastal Card */}
-                  <div className="absolute bottom-3.5 inset-x-3.5 p-4 rounded-2xl bg-coastal-navy/90 border border-white/15 backdrop-blur-md text-left space-y-1.5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-mono text-[10px] uppercase tracking-widest text-teal-300">
-                          {currentSlide.locationVibe}
-                        </div>
-                        <h2 className="font-heading text-base sm:text-lg font-bold text-white leading-snug mt-0.5">
+                  {/* Clean Editorial Caption Card */}
+                  <div className="absolute bottom-3.5 inset-x-3.5 z-30 p-4 rounded-2xl bg-[#081523]/88 border border-white/15 backdrop-blur-xl text-left">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="font-heading text-base sm:text-[17px] font-bold text-white leading-snug truncate">
                           {currentSlide.title}
                         </h2>
+                        <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                          {currentSlide.caption}
+                        </p>
                       </div>
                       <a
                         href={currentSlide.serviceLink}
                         aria-label={`Explore ${currentSlide.title}`}
-                        className="shrink-0 p-2 rounded-xl bg-amber-400 text-coastal-navy hover:bg-amber-300 transition-colors"
+                        className="shrink-0 w-9 h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-coastal-navy flex items-center justify-center transition-colors"
                       >
                         <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
                       </a>
                     </div>
-                    <p className="text-xs text-slate-200 leading-relaxed line-clamp-2">
-                      {currentSlide.caption}
-                    </p>
                   </div>
                 </div>
 
-                {/* 5-Segment Timed Progress Scrubber Bar */}
-                <div className="grid grid-cols-5 gap-1.5 p-3 bg-coastal-navy border-t border-white/10">
+                {/* Minimal 5-Line Progress Indicator (Zero Text Clutter) */}
+                <div className="grid grid-cols-5 gap-2 px-3 pt-3 pb-1">
                   {HOME_HERO_SLIDES.map((slide, idx) => {
                     const active = idx === activeIdx;
-                    const shortLabels = ['Coastal LED', '200A Panel', 'Pavilion', 'Meters', 'Pool Pad'];
                     return (
                       <button
                         key={slide.cleanBase}
                         type="button"
                         onClick={() => setActiveIdx(idx)}
-                        aria-label={`Show coastal project ${idx + 1}: ${slide.title}`}
-                        className={`group text-left px-2.5 py-2 rounded-xl transition-colors ${
-                          active ? 'bg-white/12' : 'bg-white/[0.03] hover:bg-white/[0.08]'
-                        }`}
+                        aria-label={`Show project: ${slide.title}`}
+                        className="py-1 focus:outline-none"
                       >
-                        <div className="h-1 w-full rounded-full bg-white/15 overflow-hidden mb-1.5">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              active ? 'w-full bg-amber-400' : 'w-0 bg-teal-400'
-                            }`}
-                          />
+                        <div className="h-1 w-full rounded-full bg-coastal-navy/12 overflow-hidden">
+                          {active ? (
+                            <div
+                              key={`${activeIdx}-${isPaused ? 'paused' : 'play'}`}
+                              className={`h-full w-full rounded-full bg-teal-700 animate-hero-progress ${
+                                isPaused ? 'animate-hero-progress-paused' : ''
+                              }`}
+                            />
+                          ) : (
+                            <div
+                              className={`h-full rounded-full ${
+                                idx < activeIdx ? 'w-full bg-teal-700/45' : 'w-0'
+                              }`}
+                            />
+                          )}
                         </div>
-                        <span
-                          className={`block font-mono text-[9px] font-semibold truncate ${
-                            active ? 'text-amber-300' : 'text-slate-400 group-hover:text-slate-200'
-                          }`}
-                        >
-                          0{idx + 1} {shortLabels[idx]}
-                        </span>
                       </button>
                     );
                   })}
@@ -293,7 +440,7 @@ export default function HiggsfieldHeroStage() {
           viewBox="0 0 1440 56"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-[103%] h-8 sm:h-12 animate-tide"
+          className="w-[103%] h-7 sm:h-10 animate-tide"
           preserveAspectRatio="none"
         >
           <path

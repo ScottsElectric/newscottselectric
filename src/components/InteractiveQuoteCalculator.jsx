@@ -14,13 +14,13 @@ import {
 } from 'lucide-react';
 
 const SERVICE_OPTIONS = [
+  { id: 'everyday', name: 'Outlets, Switches, Ceiling Fans & Breaker Fixes', basePrice: 175, Icon: Lightbulb },
   { id: 'panel', name: '200A / 400A Electrical Panel Upgrade', basePrice: 1800, Icon: Zap },
   { id: 'ev', name: 'Level 2 EV Charger Circuit (240V)', basePrice: 650, Icon: Car },
   { id: 'generator', name: 'Whole-Home Standby Generator & ATS', basePrice: 5500, Icon: BatteryCharging },
-  { id: 'lighting', name: 'Chandelier, Recessed LED & Exterior Lighting', basePrice: 550, Icon: Lightbulb },
-  { id: 'smarthome', name: 'Smart Switches, Dimmers & Energy Monitor', basePrice: 450, Icon: Cpu },
-  { id: 'pool', name: 'NEC 680 Pool / Hot Tub Subpanel & Bonding', basePrice: 950, Icon: Waves },
-  { id: 'inspection', name: 'Diagnostic Troubleshooting & Code Audit', basePrice: 199, Icon: ShieldCheck },
+  { id: 'lighting', name: 'Chandeliers, Recessed LED & Exterior Lighting', basePrice: 450, Icon: Cpu },
+  { id: 'pool', name: 'Pool / Hot Tub Subpanel & Bonding', basePrice: 850, Icon: Waves },
+  { id: 'inspection', name: 'Safety Inspection & Home-Sale Repairs', basePrice: 199, Icon: ShieldCheck },
 ];
 
 const NEC_APPLIANCES = [
@@ -142,11 +142,11 @@ export default function InteractiveQuoteCalculator() {
       {/* Top Direct Phone Banner + Mode Switcher */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 mb-8 border-b border-slate-800/90">
         <div>
-          <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-amber-400">
-            757 ELECTRICAL PROJECT &amp; NEC 220 LOAD WORKBENCH
+          <span className="text-xs font-bold uppercase tracking-[0.16em] text-amber-400">
+            Instant Estimate &amp; Panel Load Check
           </span>
           <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-white mt-1">
-            Calculate Project Cost or Panel Amperage Load
+            Estimate Any Repair or Upgrade
           </h2>
         </div>
 
